@@ -2,6 +2,7 @@ import time
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 import subprocess
+
 #------------Clases----------------
 class Gramatica():
     def __init__(self, Nombre, NTerminal, Terminal, Inicial):
@@ -17,7 +18,7 @@ Gramaticas = []
 #-----------Funciones--------------
 
 def MostrarGramaticas():
-    print('-------Gramaticas---------')
+    print('-------Gramaticas cargadas---------')
     for i in range(len(Gramaticas)):
         print(str(i+1) + '.' + Gramaticas[i].Nombre)
 
@@ -44,14 +45,23 @@ def Leer(path):
                     if "|" in i[j][1]:
                         i[j][1] = i[j][1].split('|')
                         for k in i[j][1]:
+                            k = k.split(' ')
                             if len(k) > 2:
                                 Guardar = True
                             produc = []
                             produc.append(i[j][0])
-                            produc.append(k)
+                            for l in k:
+                                produc.append(l)
                             GR.Producciones.append(produc)
                     else:
-                        i[j][1]
+                        i[j][1] = i[j][1].split(' ')
+                        if len(i[j][1]) > 2:
+                            Guardar = True
+                        produc = []
+                        produc.append(i[j][0])
+                        for s in i[j][1]:
+                            produc.append(s)
+                        GR.Producciones.append(produc)
                 if Guardar == True:
                     Gramaticas.append(GR)
                 else:
