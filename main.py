@@ -18,9 +18,9 @@ Gramaticas = []
 #-----------Funciones--------------
 
 def MostrarGramaticas():
-    print('-------Gramaticas cargadas---------')
+    print('-------Gramaticas---------')
     for i in range(len(Gramaticas)):
-        print(str(i+1) + '.' + Gramaticas[i].Nombre)
+        print(str(i+1) + 'Nombre de la gramatica tipo 2' + Gramaticas[i].Nombre)
 
 def Leer(path):
     try:
@@ -67,7 +67,9 @@ def Leer(path):
                 else:
                     print('No se Guardo la gramatica: ' + Nombre + ' Ya que no es libre del contexto')
         print('Cargado con exito')
-        MostrarGramaticas()
+        print('-------Gramaticas cargadas---------')
+        for i in range(len(Gramaticas)):
+            print(str(i + 1) + '.' + Gramaticas[i].Nombre)
     except FileNotFoundError:
         print('Porfavor seleccione un archivo')
     except:
