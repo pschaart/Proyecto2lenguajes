@@ -12,15 +12,67 @@ class Gramatica():
         self.Inicial = Inicial
         self.Producciones = []
 
+    def InsertarProduc(self,Noterminal,terminal):
+        if len(self.Producciones) == 0:
+            produccion = []
+            produccion.append(Noterminal)
+            if len(terminal) > 1:
+                terminal = terminal.split(' ')
+                for s in terminal:
+                    produccion.append(s)
+            else:
+                produccion.append(terminal)
+            self.Producciones.append(produccion)
+        else:
+            ingresada = False
+            for i in self.Producciones:
+                if i[0] == Noterminal:
+                    i.append('|')
+                    if len(terminal) > 1:
+                        terminal = terminal.split(' ')
+                        for s in terminal:
+                            i.append(s)
+                    else:
+                        i.append(terminal)
+                    ingresada = True
+            if ingresada == False:
+                produccion = []
+                produccion.append(Noterminal)
+                if len(terminal) > 1:
+                    terminal = terminal.split(' ')
+                    for s in terminal:
+                        produccion.append(s)
+                else:
+                    produccion.append(terminal)
+                self.Producciones.append(produccion)
+
+
+
 #-----------Memoria----------------
 Gramaticas = []
 
 #-----------Funciones--------------
 
 def MostrarGramaticas():
-    print('-------Gramaticas---------')
-    for i in range(len(Gramaticas)):
-        print(str(i+1) + 'Nombre de la gramatica tipo 2' + Gramaticas[i].Nombre)
+    try:
+        print('-------Gramaticas---------')
+        for i in range(len(Gramaticas)):
+            print(str(i + 1) + '.' + Gramaticas[i].Nombre)
+        elegida = input()
+        print('Nombre de la gramatica tipo 2: ' + Gramaticas[int(int(elegida) - 1)].Nombre)
+        print('No terminales = {' + Gramaticas[int(int(elegida) - 1)].NTerminal + '}')
+        print('Terminales = {' + Gramaticas[int(int(elegida) - 1)].Terminal + '}')
+        print('No terminal inicial = ' + Gramaticas[int(int(elegida) - 1)].Inicial)
+        print('Producciones:')
+        print(Gramaticas[int(int(elegida) - 1)].Producciones)
+        for h in Gramaticas[int(elegida) - 1].Producciones:
+            print(h[0] + '->', end='')
+            for j in h[1]:
+                print(j + ' ', end='')
+            print('')
+
+    except:
+        raise Exception('Porfavor elija una opcion de la lista')
 
 def Leer(path):
     try:
@@ -48,20 +100,12 @@ def Leer(path):
                             k = k.split(' ')
                             if len(k) > 2:
                                 Guardar = True
-                            produc = []
-                            produc.append(i[j][0])
-                            for l in k:
-                                produc.append(l)
-                            GR.Producciones.append(produc)
+                            GR.InsertarProduc(i[j][0],i[j][1])
                     else:
                         i[j][1] = i[j][1].split(' ')
                         if len(i[j][1]) > 2:
                             Guardar = True
-                        produc = []
-                        produc.append(i[j][0])
-                        for s in i[j][1]:
-                            produc.append(s)
-                        GR.Producciones.append(produc)
+                        GR.InsertarProduc(i[j][0],i[j][1])
                 if Guardar == True:
                     Gramaticas.append(GR)
                 else:
@@ -73,7 +117,7 @@ def Leer(path):
     except FileNotFoundError:
         print('Porfavor seleccione un archivo')
     except:
-        raise Exception('Ha ocurrido un error')
+        Exception('Ha ocurrido un error')
 
 #-----------Menu-----------
 segundos = 5
@@ -100,3 +144,5 @@ while opcion != 6:
         NombreArchivo = askopenfilename()
         root.withdraw()
         Leer(NombreArchivo)
+    elif int(opcion) == 2:
+        MostrarGramaticas()
