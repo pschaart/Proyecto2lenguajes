@@ -1,4 +1,6 @@
+import os
 import time
+from graphviz import Digraph
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 import subprocess
@@ -12,7 +14,7 @@ class Gramatica():
         self.Inicial = Inicial
         self.Producciones = []
 
-    def InsertarProduc(self,Noterminal,terminal):
+    def InsertarProduc(self, Noterminal, terminal):
         if len(self.Producciones) == 0:
             produccion = []
             produccion.append(Noterminal)
@@ -40,39 +42,57 @@ class Gramatica():
                 produccion.append(Noterminal)
                 if len(terminal) > 1:
                     terminal = terminal.split(' ')
-                    for s in terminal:
-                        produccion.append(s)
+                    for x in terminal:
+                        produccion.append(x)
                 else:
                     produccion.append(terminal)
                 self.Producciones.append(produccion)
+
+class ADP():
+    def __init__(self,Nombre):
+        self.Nombre = Nombre
+        self.Estadoi = 'λ,λ,#'
+        self.Estadop = []
+        self.Estadoq = []
+        self.Estadof = []
 
 
 
 #-----------Memoria----------------
 Gramaticas = []
-
+ADPES = []
 #-----------Funciones--------------
 
 def MostrarGramaticas():
     try:
-        print('-------Gramaticas---------')
-        for i in range(len(Gramaticas)):
-            print(str(i + 1) + '.' + Gramaticas[i].Nombre)
-        elegida = input()
-        print('Nombre de la gramatica tipo 2: ' + Gramaticas[int(int(elegida) - 1)].Nombre)
-        print('No terminales = {' + Gramaticas[int(int(elegida) - 1)].NTerminal + '}')
-        print('Terminales = {' + Gramaticas[int(int(elegida) - 1)].Terminal + '}')
-        print('No terminal inicial = ' + Gramaticas[int(int(elegida) - 1)].Inicial)
-        print('Producciones:')
-        print(Gramaticas[int(int(elegida) - 1)].Producciones)
-        for h in Gramaticas[int(elegida) - 1].Producciones:
-            print(h[0] + '->', end='')
-            for j in h[1]:
-                print(j + ' ', end='')
-            print('')
-
+        enmenu = False
+        while enmenu != True:
+            numeroSalida = 0
+            print('-------Gramaticas---------')
+            for i in range(len(Gramaticas)):
+                numeroSalida = i+2
+                print(str(i + 1) + '.' + Gramaticas[i].Nombre)
+            print(str(numeroSalida) + '.Salir')
+            elegida = input()
+            #print(elegida)
+            if int(elegida) == int(numeroSalida):
+                enmenu = True
+            else:
+                print('Nombre de la gramatica tipo 2: ' + Gramaticas[int(int(elegida) - 1)].Nombre)
+                print('No terminales = {' + Gramaticas[int(int(elegida) - 1)].NTerminal + '}')
+                print('Terminales = {' + Gramaticas[int(int(elegida) - 1)].Terminal + '}')
+                print('No terminal inicial = ' + Gramaticas[int(int(elegida) - 1)].Inicial)
+                print('Producciones:')
+                for h in Gramaticas[int(elegida) - 1].Producciones:
+                    print(h[0] + '->', end='')
+                    for j in range(1, len(h)):
+                        print(h[j] + ' ', end='')
+                    print('')
+                os.system("pause")
+                os.system("cls")
     except:
-        raise Exception('Porfavor elija una opcion de la lista')
+        #raise Exception()
+        print('Porfavor elija una opcion de la lista')
 
 def Leer(path):
     try:
@@ -94,18 +114,10 @@ def Leer(path):
                 GR = Gramatica(Nombre,NTerminales,Terminales,Inicial)
                 for j in range(2,len(i)):
                     i[j] = i[j].split('->')
-                    if "|" in i[j][1]:
-                        i[j][1] = i[j][1].split('|')
-                        for k in i[j][1]:
-                            k = k.split(' ')
-                            if len(k) > 2:
-                                Guardar = True
-                            GR.InsertarProduc(i[j][0],i[j][1])
-                    else:
-                        i[j][1] = i[j][1].split(' ')
-                        if len(i[j][1]) > 2:
-                            Guardar = True
-                        GR.InsertarProduc(i[j][0],i[j][1])
+                    veri = i[j][1].split(' ')
+                    if len(veri) > 2:
+                        Guardar = True
+                    GR.InsertarProduc(i[j][0],i[j][1])
                 if Guardar == True:
                     Gramaticas.append(GR)
                 else:
@@ -117,7 +129,45 @@ def Leer(path):
     except FileNotFoundError:
         print('Porfavor seleccione un archivo')
     except:
-        Exception('Ha ocurrido un error')
+        print('Ha ocurrido un error')
+
+def GenerarAutomata():
+    try:
+        for i in range(len(Gramaticas)):
+            print(str(i + 1) + '.' + Gramaticas[i].Nombre)
+        print('seleccione una gramatica:')
+        gramausar = Gramaticas[int(input()) - 1]
+        ADPMOMEN = ADP('AP_' + gramausar.Nombre)
+        f = Digraph('Automata de pila', filename='AP_.gv', format='png')
+        f.attr(rankdir= 'LR')
+        f.attr('node', shape='circle')
+        f.node('i')
+        f.node('p')
+        f.node('q')
+
+        f.edge('i','p',label='λ,λ,#')
+        f.edge('p', 'q', label=('λ,λ,' + gramausar.Inicial))
+        ADPMOMEN.Estadop.append('λ,λ,' + gramausar.Inicial)
+        for m in gramausar.Producciones:
+            if '|' in m:
+                iz = m[0]
+                sin0 = m
+                sin0.pop(0)
+                sin0 = ''.join(sin0)
+                sin0 = sin0.split('|')
+                print(sin0)
+                #ADPMOMEN.Estadoq.append()
+        ex = str('prueba\\n'
+                 'hola\\n'
+                 'adios')
+        f.edge('q', 'q', label=(ex))
+        f.view()
+
+    except:
+        raise Exception()
+        print('Ha ocurido un error')
+
+
 
 #-----------Menu-----------
 segundos = 5
@@ -146,3 +196,6 @@ while opcion != 6:
         Leer(NombreArchivo)
     elif int(opcion) == 2:
         MostrarGramaticas()
+    elif int(opcion) == 3:
+        GenerarAutomata()
+
