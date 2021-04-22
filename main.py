@@ -145,22 +145,36 @@ def GenerarAutomata():
         f.node('p')
         f.node('q')
 
-        f.edge('i','p',label='λ,λ,#')
-        f.edge('p', 'q', label=('λ,λ,' + gramausar.Inicial))
-        ADPMOMEN.Estadop.append('λ,λ,' + gramausar.Inicial)
+        f.edge('i','p',label='λ,λ;#')
+        f.edge('p', 'q', label=('λ,λ;' + gramausar.Inicial))
+        ADPMOMEN.Estadop.append('λ,λ;' + gramausar.Inicial)
         for m in gramausar.Producciones:
             if '|' in m:
-                iz = m[0]
-                sin0 = m
-                sin0.pop(0)
-                sin0 = ''.join(sin0)
-                sin0 = sin0.split('|')
-                print(sin0)
-                #ADPMOMEN.Estadoq.append()
-        ex = str('prueba\\n'
-                 'hola\\n'
-                 'adios')
-        f.edge('q', 'q', label=(ex))
+                sinm=[]
+                for k in range(1, len(m)):
+                    sinm.append(m[k])
+                sinm = ' '.join(sinm)
+                sinm = sinm.split('|')
+                for l in sinm:
+                    texto = []
+                    texto.append('λ,')
+                    texto.append(m[0] + ';')
+                    texto.append(''.join(l.split(' ')))
+                    texto = ''.join(texto)
+                    ADPMOMEN.Estadoq.append(texto)
+            else:
+                texto = []
+                texto.append('λ,')
+                texto.append(m[0] + ';')
+                for i in range(1,len(m)):
+                    texto.append(m[i])
+                texto = ''.join(texto)
+                ADPMOMEN.Estadoq.append(texto)
+        arriba = []
+        for j in ADPMOMEN.Estadoq:
+            arriba.append(j)
+        arriba = '\\n'.join(arriba)
+        f.edge('q', 'q', label=(arriba))
         f.view()
 
     except:
