@@ -54,7 +54,7 @@ class ADP():
         self.Estadoi = 'λ,λ,#'
         self.Estadop = []
         self.Estadoq = []
-        self.Estadof = []
+        self.Estadof = 'λ,#,λ'
 
 
 
@@ -170,16 +170,31 @@ def GenerarAutomata():
                     texto.append(m[i])
                 texto = ''.join(texto)
                 ADPMOMEN.Estadoq.append(texto)
+        termin = gramausar.Terminal
+        print(termin)
+        termin = termin.split(',')
+        for h in termin:
+            texto = []
+            texto.append(h + ',')
+            texto.append(h + ';λ')
+            texto = ''.join(texto)
+            ADPMOMEN.Estadoq.append(texto)
         arriba = []
         for j in ADPMOMEN.Estadoq:
             arriba.append(j)
         arriba = '\\n'.join(arriba)
         f.edge('q', 'q', label=(arriba))
+        f.attr('node', shape='doublecircle')
+        f.node('f')
+        f.edge('q','f',label=('λ,#,λ'))
+
         f.view()
 
     except:
         raise Exception()
         print('Ha ocurido un error')
+
+
 
 
 
