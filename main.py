@@ -49,11 +49,13 @@ class Gramatica():
                 self.Producciones.append(produccion)
 
 class ADP():
-    def __init__(self,Nombre):
+    def __init__(self,Nombre,Gramatica):
+        self.Gramatica = Gramatica
         self.Nombre = Nombre
         self.Estadoi = 'λ,λ,#'
-        self.Estadop = []
-        self.Estadoq = []
+        self.Estadop = ''
+        self.Estadoqar = []
+        self.Estadoqab = []
         self.Estadof = 'λ,#,λ'
 
 
@@ -137,8 +139,8 @@ def GenerarAutomata():
             print(str(i + 1) + '.' + Gramaticas[i].Nombre)
         print('seleccione una gramatica:')
         gramausar = Gramaticas[int(input()) - 1]
-        ADPMOMEN = ADP('AP_' + gramausar.Nombre)
-        f = Digraph('Automata de pila', filename='AP_.gv', format='png')
+        ADPMOMEN = ADP('AP_' + gramausar.Nombre,gramausar)
+        f = Digraph('Automata de pila', filename='AP_' + gramausar.Nombre + '.gv', format='png')
         f.attr(rankdir= 'LR')
         f.attr('node', shape='circle')
         f.node('i')
@@ -147,7 +149,7 @@ def GenerarAutomata():
 
         f.edge('i','p',label='λ,λ;#')
         f.edge('p', 'q', label=('λ,λ;' + gramausar.Inicial))
-        ADPMOMEN.Estadop.append('λ,λ;' + gramausar.Inicial)
+        ADPMOMEN.Estadop = gramausar.Inicial
         for m in gramausar.Producciones:
             if '|' in m:
                 sinm=[]
@@ -159,9 +161,9 @@ def GenerarAutomata():
                     texto = []
                     texto.append('λ,')
                     texto.append(m[0] + ';')
-                    texto.append(''.join(l.split(' ')))
+                    texto.append(l)
                     texto = ''.join(texto)
-                    ADPMOMEN.Estadoq.append(texto)
+                    ADPMOMEN.Estadoqar.append(texto)
             else:
                 texto = []
                 texto.append('λ,')
@@ -169,30 +171,98 @@ def GenerarAutomata():
                 for i in range(1,len(m)):
                     texto.append(m[i])
                 texto = ''.join(texto)
-                ADPMOMEN.Estadoq.append(texto)
+                ADPMOMEN.Estadoqar.append(texto)
         termin = gramausar.Terminal
-        print(termin)
         termin = termin.split(',')
         for h in termin:
             texto = []
             texto.append(h + ',')
             texto.append(h + ';λ')
             texto = ''.join(texto)
-            ADPMOMEN.Estadoq.append(texto)
+            ADPMOMEN.Estadoqab.append(texto)
         arriba = []
-        for j in ADPMOMEN.Estadoq:
+        for j in ADPMOMEN.Estadoqar:
             arriba.append(j)
         arriba = '\\n'.join(arriba)
-        f.edge('q', 'q', label=(arriba))
+        abajo = []
+        for j in ADPMOMEN.Estadoqab:
+            abajo.append(j)
+        abajo = '\\n'.join(abajo)
+        f.edge('q:n', 'q:n', label=(arriba))
+        f.edge('q:s', 'q:s', label=(abajo))
         f.attr('node', shape='doublecircle')
         f.node('f')
         f.edge('q','f',label=('λ,#,λ'))
 
-        f.view()
-
+        f.render()
+        Guardar = True
+        for i in ADPES:
+            if i.Nombre == 'AP_' + gramausar.Nombre:
+                Guardar = False
+                print('no se guardo')
+        if Guardar:
+            ADPES.append(ADPMOMEN)
     except:
         raise Exception()
         print('Ha ocurido un error')
+
+def AnalizarCadena():
+    pila = []
+    for i in range(len(ADPES)):
+        print(str(i + 1) + '.' + ADPES[i].Nombre)
+    print('seleccione una Automata de pila:')
+    ADPusar = ADPES[int(input()) - 1]
+    print('ingrese una cadena')
+    cadena = input()
+    pila.append('#')
+    inicial = ADPusar.Estadop
+    pila.append(inicial)
+    while cadena != '' or len(pila) != 1 :
+        print(pila)
+        ingresada = False
+        ultimo = pila[len(pila)-1]
+        for i in ADPusar.Estadoqar:
+            transi1 = i.split(';')
+            transi1[1] = ''.join(transi1[1].split(' '))
+            transi2 = transi1[0].split(',')
+            if transi2[1] == ultimo:
+                if len(transi1[1]) > 1 and cadena[0] in transi1[1]:
+                    pila.pop()
+                    num = len(transi1[1]) - 1
+                    for k in transi1[1]:
+                        pila.append(transi1[1][num])
+                        num -= 1
+                    ingresada = True
+                    break
+                if len(transi1[1]) == 1:
+                    pila.pop()
+                    num = len(transi1[1]) - 1
+                    for k in transi1[1]:
+                        pila.append(transi1[1][num])
+                        num -= 1
+                    ingresada = True
+                    break
+        if ingresada == False:
+            for i in ADPusar.Estadoqab:
+                transi1 = i.split(';')
+                transi2 = transi1[0].split(',')
+                if transi2[0] == ultimo:
+                    cadena = cadena.lstrip(ultimo)
+                    pila.pop()
+                    ingresada = True
+                    break
+        if ingresada == False:
+            print('La cadena no es aceptada ya que no pertenece a la gramatica')
+            break
+    print(pila)
+    if len(cadena) > 1:
+        return
+    else:
+        pila.pop()
+
+
+
+
 
 
 
@@ -227,4 +297,5 @@ while opcion != 6:
         MostrarGramaticas()
     elif int(opcion) == 3:
         GenerarAutomata()
-
+    elif int(opcion) == 4:
+        AnalizarCadena()
