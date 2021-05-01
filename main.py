@@ -204,7 +204,7 @@ def GenerarAutomata():
             ADPES.append(ADPMOMEN)
     except:
         raise Exception()
-        print('Ha ocurido un error')
+        print('Ha ocurrido un error')
 
 def AnalizarCadena():
     pila = []
@@ -259,13 +259,6 @@ def AnalizarCadena():
         return
     else:
         pila.pop()
-
-
-
-
-
-
-
 
 
 #-----------Menu-----------
