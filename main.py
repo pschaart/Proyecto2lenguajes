@@ -135,12 +135,16 @@ def Leer(path):
 
 def GenerarAutomata():
     try:
+        s = open('Gramatica.html', 'w')
+        mensaje = []
+        mensaje.append('<html>'
+                       '<head></head>')
         for i in range(len(Gramaticas)):
             print(str(i + 1) + '.' + Gramaticas[i].Nombre)
         print('seleccione una gramatica:')
         gramausar = Gramaticas[int(input()) - 1]
         ADPMOMEN = ADP('AP_' + gramausar.Nombre,gramausar)
-        f = Digraph('Automata de pila', filename='AP_' + gramausar.Nombre + '.gv', format='png')
+        f = Digraph('Automata de pila', filename='AP_' + gramausar.Nombre + '.gv', format='jpg')
         f.attr(rankdir= 'LR')
         f.attr('node', shape='circle')
         f.node('i')
@@ -199,96 +203,215 @@ def GenerarAutomata():
         for i in ADPES:
             if i.Nombre == 'AP_' + gramausar.Nombre:
                 Guardar = False
-                print('no se guardo')
+                print('no se guardo porque ya existe')
         if Guardar:
             ADPES.append(ADPMOMEN)
+        mensaje.append('<p>')
+        mensaje.append('Nombre de la gramatica tipo 2: ' + gramausar.Nombre + '<br>')
+        mensaje.append('No terminales = {' + gramausar.NTerminal + '}<br>')
+        mensaje.append('Terminales = {' + gramausar.Terminal + '}<br>')
+        mensaje.append('No terminal inicial = ' + gramausar.Inicial + '<br>')
+        mensaje.append('Producciones:<br>')
+        for h in gramausar.Producciones:
+            mensaje.append(h[0] + '->')
+            for j in range(1, len(h)):
+                mensaje.append(h[j] + ' ')
+            mensaje.append('<br>')
+        mensaje.append('<p>')
+        mensaje.append('<img src="AP_' + gramausar.Nombre + '.gv.jpg">')
+        mensaje.append('</html>')
+        mensaje = ''.join(mensaje)
+        s.write(mensaje)
+        s.close()
+        subprocess.Popen(['Gramatica.html'], shell=True)
     except:
-        raise Exception()
+        #raise Exception()
         print('Ha ocurrido un error')
 
 def AnalizarCadena():
-    pila = []
-    for i in range(len(ADPES)):
-        print(str(i + 1) + '.' + ADPES[i].Nombre)
-    print('seleccione una Automata de pila:')
-    ADPusar = ADPES[int(input()) - 1]
-    print('ingrese una cadena')
-    cadena = input()
-    pila.append('#')
-    inicial = ADPusar.Estadop
-    pila.append(inicial)
-    while cadena != '' or len(pila) != 1 :
-        print(pila)
-        ingresada = False
-        ultimo = pila[len(pila)-1]
-        for i in ADPusar.Estadoqar:
-            transi1 = i.split(';')
-            transi1[1] = ''.join(transi1[1].split(' '))
-            transi2 = transi1[0].split(',')
-            if transi2[1] == ultimo:
-                if len(transi1[1]) > 1 and cadena[0] in transi1[1]:
-                    pila.pop()
-                    num = len(transi1[1]) - 1
-                    for k in transi1[1]:
-                        pila.append(transi1[1][num])
-                        num -= 1
-                    ingresada = True
-                    break
-                if len(transi1[1]) == 1:
-                    pila.pop()
-                    num = len(transi1[1]) - 1
-                    for k in transi1[1]:
-                        pila.append(transi1[1][num])
-                        num -= 1
-                    ingresada = True
-                    break
-        if ingresada == False:
-            for i in ADPusar.Estadoqab:
+    try:
+        f = open('archivo.html', 'w')
+        mensaje = []
+        mensaje.append('<html>'
+                       '<head></head>'
+                       '<table border="1">')
+        pila = []
+        for i in range(len(ADPES)):
+            print(str(i + 1) + '.' + ADPES[i].Nombre)
+        print('seleccione una Automata de pila:')
+        ADPusar = ADPES[int(input()) - 1]
+        print('ingrese una cadena')
+        cadena = input()
+        pila.append('#')
+        mensaje.append('<div style="border: 1px solid blue;">'
+                        '<img src="' + ADPusar.Nombre + '.gv.jpg">'
+                        '<table border="1">' 
+                        '<tr>'
+                        '<td>Pila</td>' 
+                        '<td>' + ''.join(pila) + '</td>'
+                        '</tr>'
+                        '<tr>'
+                        '<td>Cadena</td>' 
+                        '<td>' + cadena + '</td>'
+                        '</tr>'
+                        '</table>'
+                        '</div>')
+        inicial = ADPusar.Estadop
+        pila.append(inicial)
+        while cadena != '' or len(pila) != 1 :
+            print(pila)
+            ingresada = False
+            ultimo = pila[len(pila)-1]
+            for i in ADPusar.Estadoqar:
                 transi1 = i.split(';')
+                transi1[1] = ''.join(transi1[1].split(' '))
                 transi2 = transi1[0].split(',')
-                if transi2[0] == ultimo:
-                    cadena = cadena.lstrip(ultimo)
-                    pila.pop()
-                    ingresada = True
-                    break
-        if ingresada == False:
-            print('La cadena no es aceptada ya que no pertenece a la gramatica')
-            break
-    print(pila)
-    if len(cadena) > 1:
-        return
-    else:
-        pila.pop()
-
+                if transi2[1] == ultimo:
+                    if len(transi1[1]) > 1 and cadena[0] in transi1[1]:
+                        pila.pop()
+                        num = len(transi1[1]) - 1
+                        for k in transi1[1]:
+                            pila.append(transi1[1][num])
+                            num -= 1
+                        ingresada = True
+                        mensaje.append('<div style="border: 1px solid blue;">'
+                                       '<img src="' + ADPusar.Nombre + '.gv.jpg">'
+                                                                       '<table border="1">'
+                                                                       '<tr>'
+                                                                       '<td>Pila</td>'
+                                                                       '<td>' + ''.join(pila) + '</td>'
+                                                                                                '</tr>'
+                                                                                                '<tr>'
+                                                                                                '<td>Cadena</td>'
+                                                                                                '<td>' + cadena + '</td>'
+                                                                                                                  '</tr>'
+                                                                                                                  '</table>'
+                                                                                                                  '</div>')
+                        break
+                    if len(transi1[1]) == 1:
+                        pila.pop()
+                        num = len(transi1[1]) - 1
+                        for k in transi1[1]:
+                            pila.append(transi1[1][num])
+                            num -= 1
+                        ingresada = True
+                        mensaje.append('<div style="border: 1px solid blue;">'
+                                       '<img src="' + ADPusar.Nombre + '.gv.jpg">'
+                                                                       '<table border="1">'
+                                                                       '<tr>'
+                                                                       '<td>Pila</td>'
+                                                                       '<td>' + ''.join(pila) + '</td>'
+                                                                                                '</tr>'
+                                                                                                '<tr>'
+                                                                                                '<td>Cadena</td>'
+                                                                                                '<td>' + cadena + '</td>'
+                                                                                                                  '</tr>'
+                                                                                                                  '</table>'
+                                                                                                                  '</div>')
+                        break
+            if ingresada == False:
+                for i in ADPusar.Estadoqab:
+                    transi1 = i.split(';')
+                    transi2 = transi1[0].split(',')
+                    if transi2[0] == ultimo:
+                        cadena = cadena.lstrip(ultimo)
+                        pila.pop()
+                        ingresada = True
+                        mensaje.append('<div style="border: 1px solid blue;">'
+                                       '<img src="' + ADPusar.Nombre + '.gv.jpg">'
+                                                                       '<table border="1">'
+                                                                       '<tr>'
+                                                                       '<td>Pila</td>'
+                                                                       '<td>' + ''.join(pila) + '</td>'
+                                                                                                '</tr>'
+                                                                                                '<tr>'
+                                                                                                '<td>Cadena</td>'
+                                                                                                '<td>' + cadena + '</td>'
+                                                                                                                  '</tr>'
+                                                                                                                  '</table>'
+                                                                                                                  '</div>')
+                        break
+            if ingresada == False:
+                mensaje.append('<div style="border: 1px solid blue;">'
+                               '<img src="' + ADPusar.Nombre + '.gv.jpg">'
+                                                               '<table border="1">'
+                                                               '<tr>'
+                                                               '<td>Pila</td>'
+                                                               '<td>' + ''.join(pila) + '</td>'
+                                                                                        '</tr>'
+                                                                                        '<tr>'
+                                                                                        '<td>Cadena</td>'
+                                                                                        '<td>' + cadena + '</td>'
+                                                                                                          '</tr>'
+                                                                                                          '</table>'
+                                                                                                          '</div>'
+                                                                                                          'cadena rechazada')
+                print('Cadena rechazada')
+                mensaje.append('</html>')
+                mensaje = ''.join(mensaje)
+                f.write(mensaje)
+                f.close()
+                subprocess.Popen(['archivo.html'], shell=True)
+                break
+        print(pila)
+        if len(cadena) > 1:
+            return
+        else:
+            pila.pop()
+            mensaje.append('<div style="color: blue;">'
+                           '<img src="' + ADPusar.Nombre + '.gv.jpg">'
+                                                           '<table border="1">'
+                                                           '<tr>'
+                                                           '<td>Pila</td>'
+                                                           '<td>' + ''.join(pila) + '</td>'
+                                                                                    '</tr>'
+                                                                                    '<tr>'
+                                                                                    '<td>Cadena</td>'
+                                                                                    '<td>' + cadena + '</td>'
+                                                                                                      '</tr>'
+                                                                                                      '</table>'
+                                                                                                      '</div>'
+                                                                                                      'Cadena aceptada')
+        mensaje.append('</html>')
+        mensaje = ''.join(mensaje)
+        f.write(mensaje)
+        f.close()
+        subprocess.Popen(['archivo.html'], shell=True)
+    except:
+        print('Ha ocurrido un error')
 
 #-----------Menu-----------
 segundos = 5
 print('----------Proyecto 2---------')
 print('creado por Pablo Gerardo Schaart Calderon')
 print('Carnet: 201800951')
-#while segundos != 0:
-#    print(segundos)
-#    time.sleep(1)
-#    segundos -= 1
+while segundos != 0:
+    print(segundos)
+    time.sleep(1)
+    segundos -= 1
 opcion = 0
 print('!Bienvenido¡')
 while opcion != 6:
-    print('------------Menu---------------')
-    print('1.Cargar el archivo')
-    print('2.Mostrar informacion general de la gramatica')
-    print('3.Generar automata de pila eqivalente')
-    print('4.Reporte de recorrido')
-    print('5.Reporte en tabla')
-    print('6.Salir')
-    opcion = input()
-    if int(opcion) == 1:
-        root = Tk()
-        NombreArchivo = askopenfilename()
-        root.withdraw()
-        Leer(NombreArchivo)
-    elif int(opcion) == 2:
-        MostrarGramaticas()
-    elif int(opcion) == 3:
-        GenerarAutomata()
-    elif int(opcion) == 4:
-        AnalizarCadena()
+    try:
+        print('------------Menu---------------')
+        print('1.Cargar el archivo')
+        print('2.Mostrar informacion general de la gramatica')
+        print('3.Generar automata de pila eqivalente')
+        print('4.Reporte de recorrido')
+        print('5.Reporte en tabla')
+        print('6.Salir')
+        opcion = input()
+        if int(opcion) == 1:
+            root = Tk()
+            NombreArchivo = askopenfilename()
+            root.withdraw()
+            Leer(NombreArchivo)
+        elif int(opcion) == 2:
+            MostrarGramaticas()
+        elif int(opcion) == 3:
+            GenerarAutomata()
+        elif int(opcion) == 4:
+            AnalizarCadena()
+    except:
+        #raise Exception()
+        print('ha ocurrido un error... regresando al menu principal')
