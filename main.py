@@ -262,11 +262,39 @@ def AnalizarCadena():
             print(pila)
             ingresada = False
             ultimo = pila[len(pila)-1]
+            transis = 0
+            for i in ADPusar.Estadoqar:
+                transi1 = i.split(';')
+                transi2 = transi1[0].split(',')
+                if transi2[1] == ultimo:
+                    transis += 1
             for i in ADPusar.Estadoqar:
                 transi1 = i.split(';')
                 transi1[1] = ''.join(transi1[1].split(' '))
                 transi2 = transi1[0].split(',')
-                if transi2[1] == ultimo:
+                if transis == 1:
+                    pila.pop()
+                    num = len(transi1[1]) - 1
+                    for k in transi1[1]:
+                        pila.append(transi1[1][num])
+                        num -= 1
+                    ingresada = True
+                    mensaje.append('<div style="border: 1px solid blue;">'
+                                   '<img src="' + ADPusar.Nombre + '.gv.jpg">'
+                                                                   '<table border="1">'
+                                                                   '<tr>'
+                                                                   '<td>Pila</td>'
+                                                                   '<td>' + ''.join(pila) + '</td>'
+                                                                                            '</tr>'
+                                                                                            '<tr>'
+                                                                                            '<td>Cadena</td>'
+                                                                                            '<td>' + cadena + '</td>'
+                                                                                                              '</tr>'
+                                                                                                              '</table>'
+                                                                                                              '</div>')
+                    break
+
+                elif transi2[1] == ultimo:
                     if len(transi1[1]) > 1 and cadena[0] in transi1[1]:
                         pila.pop()
                         num = len(transi1[1]) - 1
@@ -288,7 +316,33 @@ def AnalizarCadena():
                                                                                                                   '</table>'
                                                                                                                   '</div>')
                         break
-                    if len(transi1[1]) == 1:
+                    elif cadena[0] in transi1[1]:
+                        pila.pop()
+                        num = len(transi1[1]) - 1
+                        for k in transi1[1]:
+                            pila.append(transi1[1][num])
+                            num -= 1
+                        ingresada = True
+                        mensaje.append('<div style="border: 1px solid blue;">'
+                                       '<img src="' + ADPusar.Nombre + '.gv.jpg">'
+                                                                       '<table border="1">'
+                                                                       '<tr>'
+                                                                       '<td>Pila</td>'
+                                                                       '<td>' + ''.join(pila) + '</td>'
+                                                                                                '</tr>'
+                                                                                                '<tr>'
+                                                                                                '<td>Cadena</td>'
+                                                                                                '<td>' + cadena + '</td>'
+                                                                                                                  '</tr>'
+                                                                                                                  '</table>'
+                                                                                                                  '</div>')
+                        break
+            if ingresada == False:
+                for i in ADPusar.Estadoqar:
+                    transi1 = i.split(';')
+                    transi1[1] = ''.join(transi1[1].split(' '))
+                    transi2 = transi1[0].split(',')
+                    if (transi2[1] == ultimo) and (len(transi1[1]) == 1):
                         pila.pop()
                         num = len(transi1[1]) - 1
                         for k in transi1[1]:
